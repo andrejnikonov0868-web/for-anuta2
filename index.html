@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Для Анюты 💖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1a0a1e 0%, #000 100%);
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  /* ====== 1. СТАРТОВЫЙ ЭКРАН ====== */
+  .start-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 300;
+    transition: opacity 0.5s;
+    will-change: opacity;
+  }
+  .start-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .heart-btn {
+    width: 180px;
+    height: 180px;
+    cursor: pointer;
+    animation: beat 1.2s infinite ease-in-out;
+    will-change: transform;
+  }
+  .heart-btn svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 0 20px #ff2b6d);
+  }
+
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* ====== 2. СЦЕНА С НАДПИСЯМИ ====== */
+  .scene {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 10;
+    contain: strict;
+  }
+
+  .word {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: 800;
+    pointer-events: none;
+    will-change: transform, opacity;
+    text-shadow: 0 0 10px currentColor;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+    transition: transform 0.35s ease-out, opacity 0.35s ease-out;
+  }
+
+  .word.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(var(--rot, 0deg));
+  }
+
+  /* ====== 3. ФИНАЛЬНОЕ СЕРДЦЕ ====== */
+  .final-scene {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(80vw, 800px);
+    height: min(80vh, 700px);
+    will-change: transform, opacity;
+  }
+
+  .final-scene .final-heart {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .final-scene .final-heart svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 0 25px rgba(255,43,109,0.8));
+  }
+
+  .final-heart .heart-shape {
+    fill: url(#bgHeartGrad);
+    opacity: 0.95;
+  }
+
+  .final-scene .final-text {
+    position: relative;
+    z-index: 2;
+    color: #c2185b;
+    font-size: clamp(28px, 6vw, 80px);
+    font-weight: 900;
+    letter-spacing: 3px;
+    white-space: nowrap;
+    margin-top: 3%;
+    text-shadow: 0 0 20px rgba(255,43,109,0.7);
+  }
+
+  .final-scene.show {
+    animation: finalVirus 1s ease-out forwards;
+  }
+
+  @keyframes finalVirus {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* ====== 4. БЕГУЩЕЕ ПОСЛАНИЕ ====== */
+  .message-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+  }
+
+  .message-scene.show { opacity: 1; }
+
+  .message-scene::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(30, 0, 30, 0.85) 0%,
+      rgba(10, 0, 10, 0.95) 60%,
+      rgba(0, 0, 0, 0.98) 100%
+    );
+  }
+
+  .scroll-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .scroll-text {
+    position: absolute;
+    top: 100vh;
+    left: 50%;
+    width: min(92vw, 700px);
+    transform: translateX(-50%);
+    text-align: center;
+    color: #ffb3d1;
+    font-size: clamp(16px, 4.5vw, 26px);
+    line-height: 1.6;
+    font-weight: 500;
+    white-space: pre-line;
+    text-shadow: 0 0 10px rgba(255,107,157,0.6);
+    will-change: transform;
+  }
+
+  .message-scene .top-heart {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    opacity: 0.85;
+    animation: smallBeat 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px #ff2b6d);
+  }
+
+  @keyframes smallBeat {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50%      { transform: translateX(-50%) scale(1.15); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="start-screen" id="startScreen">
+    <div class="heart-btn" id="heartBtn">
+      <svg viewBox="0 0 32 29" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff6b9d"/>
+            <stop offset="50%" stop-color="#ff2b6d"/>
+            <stop offset="100%" stop-color="#d500f9"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#heartGrad)" d="M16 29S0 18.5 0 8.5C0 3.8 3.8 0 8.5 0c3 0 5.7 1.6 7.5 4.2C17.8 1.6 20.5 0 23.5 0 28.2 0 32 3.8 32 8.5 32 18.5 16 29 16 29z"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="scene" id="scene"></div>
+
+  <div class="final-scene" id="finalScene">
+    <div class="final-heart">
+      <svg viewBox="0 0 32 29" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="bgHeartGrad" cx="50%" cy="45%" r="65%">
+            <stop offset="0%"   stop-color="#ff6b9d" stop-opacity="1"/>
+            <stop offset="45%"  stop-color="#ff2b6d" stop-opacity="0.95"/>
+            <stop offset="80%"  stop-color="#d500f9" stop-opacity="0.85"/>
+            <stop offset="100%" stop-color="#d500f9" stop-opacity="0.7"/>
+          </radialGradient>
+        </defs>
+        <path class="heart-shape"
+              d="M16 29S0 18.5 0 8.5C0 3.8 3.8 0 8.5 0c3 0 5.7 1.6 7.5 4.2C17.8 1.6 20.5 0 23.5 0 28.2 0 32 3.8 32 8.5 32 18.5 16 29 16 29z"/>
+      </svg>
+    </div>
+    <div class="final-text">Люблю тебя</div>
+  </div>
+
+  <div class="message-scene" id="messageScene">
+    <div class="top-heart">❤️</div>
+    <div class="scroll-container">
+      <div class="scroll-text" id="scrollText"></div>
+    </div>
+  </div>
+
+<script>
+  // ============================================================
+  //  ✍️ ТЕКСТ ПОСЛАНИЯ — ПИШИ СВОЙ ЗДЕСЬ
+  // ============================================================
+  const messageText = "Анют, с днём рождения тебя!\nЯ желаю тебе всего самого наилучшего,\nкрепкого здоровья и терпения.\n\nЯ верю, что все твои желания и мечты сбудутся,\nну а куда им деться то, хех.\n\nВ независимости от всех трудностей,\nя обещаю, что буду рядом\nи помогу насколько это возможно.\n\nСпасибо, что ты появилась в моей жизни.\nЕщё раз: с днём рождения!\n\n❤️";
+
+  // ============================================================
+  //  ⚙️ НАСТРОЙКИ
+  // ============================================================
+  const scrollDuration = 45;    // сколько секунд едет послание
+  const messageDelay = 2500;    // через сколько мс после сердца показать послание
+
+  // ====== АВТООПРЕДЕЛЕНИЕ УСТРОЙСТВА ======
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 600;
+  const isWeak = isMobile || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+
+  // ====== НАСТРОЙКИ ПОД УСТРОЙСТВО ======
+  const CONFIG = isWeak ? {
+    repeats: 2,
+    spawnDelay: 110,
+    sectorsX: 4,
+    sectorsY: 4,
+    sizeStep: 0.15,
+    sizeReset: 10,
+    baseFontMin: 15,
+    baseFontMax: 26
+  } : {
+    repeats: 4,
+    spawnDelay: 70,
+    sectorsX: 6,
+    sectorsY: 5,
+    sizeStep: 0.12,
+    sizeReset: 14,
+    baseFontMin: 16,
+    baseFontMax: 34
+  };
+
+  console.log('Режим:', isWeak ? 'телефон/слабое' : 'десктоп', CONFIG);
+
+  // ============================================================
+  //  ФРАЗЫ
+  // ============================================================
+  const birthdayPhrases = [
+    "С днём рождения, Анюта!",
+    "С днём рождения, котик!",
+    "С днём рождения, солнышко!",
+    "С днём рождения, зайка!",
+    "С днём рождения, любимая!",
+    "С днём рождения, милая!",
+    "С днём рождения, моё чудо!",
+    "С днём рождения, Анюта ❤️",
+    "С днём рождения, моя вселенная!",
+    "С днём рождения, моя звёздочка!",
+    "С днём рождения, моё солнце!",
+
+    "Happy Birthday, Anyuta!",
+    "Happy Birthday, my love!",
+    "Happy Birthday, sunshine!",
+    "Happy Birthday, kitten!",
+    "Happy Birthday, sweetheart!",
+    "Happy Birthday, my dear!",
+
+    "Joyeux anniversaire, Anyuta!",
+    "Joyeux anniversaire, mon cœur!",
+    "Joyeux anniversaire, mon amour!",
+    "Joyeux anniversaire, ma chérie!",
+    "Joyeux anniversaire, mon trésor!",
+
+    "Feliz cumpleaños, Anyuta!",
+    "Feliz cumpleaños, mi amor!",
+    "Feliz cumpleaños, mi vida!",
+    "Feliz cumpleaños, mi cielo!",
+    "Feliz cumpleaños, mi tesoro!",
+
+    "Buon compleanno, Anyuta!",
+    "Buon compleanno, amore mio!",
+    "Buon compleanno, tesoro mio!",
+    "Buon compleanno, mia cara!",
+
+    "Alles Gute zum Geburtstag, Anyuta!",
+    "Alles Gute zum Geburtstag, mein Schatz!",
+    "Alles Gute zum Geburtstag, mein Liebling!",
+    "Alles Gute zum Geburtstag, meine Süße!",
+
+    "Gelukkige verjaardag, Anyuta!",
+    "Gelukkige verjaardag, mijn schat!",
+
+    "Grattis på födelsedagen, Anyuta!",
+    "Grattis på födelsedagen, älskling!",
+
+    "Wszystkiego najlepszego, Anyuta!",
+    "Sto lat, Anyuta!",
+    "Wszystkiego najlepszego, kochanie!",
+
+    "Χρόνια πολλά, Anyuta!",
+    "Χρόνια πολλά, αγάπη μου!",
+
+    "Doğum günün kutlu olsun, Anyuta!",
+    "Doğum günün kutlu olsun, aşkım!",
+
+    "Feliz aniversário, Anyuta!",
+    "Feliz aniversário, meu amor!",
+
+    "La multi ani, Anyuta!",
+    "La multi ani, iubirea mea!",
+
+    "Všechno nejlepší, Anyuta!",
+    "Všechno nejlepší, moje lásko!",
+
+    "お誕生日おめでとう、アニュタ！",
+    "お誕生日おめでとう、愛しい人！",
+    "お誕生日おめでとう、ダーリン！",
+
+    "生日快乐，安纽塔！",
+    "生日快乐，我的爱！",
+    "生日快乐，亲爱的！",
+
+    "생일 축하해, 아뉴타!",
+    "생일 축하해, 사랑해!",
+    "생일 축하해, 자기야!"
+  ];
+
+  const colors = isWeak
+    ? ["#ff2b6d", "#ff6b9d", "#ffd54f", "#40c4ff", "#1de9b6", "#d500f9", "#ff5252", "#b2ff59"]
+    : ["#ff2b6d", "#ff6b9d", "#ffb3d1", "#ff1744", "#ff5252",
+       "#ff4081", "#f50057", "#e91e63", "#ff80ab", "#ffd54f",
+       "#ffab40", "#ff6e40", "#ff3d00", "#d500f9", "#aa00ff",
+       "#7c4dff", "#536dfe", "#40c4ff", "#00e5ff", "#1de9b6",
+       "#69f0ae", "#b2ff59", "#eeff41", "#ffeb3b", "#ffc107"];
+
+  const fonts = isWeak
+    ? ["'Segoe UI'", "Georgia", "Verdana"]
+    : ["'Segoe UI'", "Georgia", "Impact", "'Courier New'",
+       "Verdana", "'Comic Sans MS'", "'Trebuchet MS'", "'Arial Black'"];
+
+  const startScreen = document.getElementById('startScreen');
+  const heartBtn = document.getElementById('heartBtn');
+  const scene = document.getElementById('scene');
+  const finalScene = document.getElementById('finalScene');
+  const messageScene = document.getElementById('messageScene');
+  const scrollText = document.getElementById('scrollText');
+
+  let started = false;
+  function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // ====== СЕКТОРА ======
+  const usedSectors = [];
+  function pickSector() {
+    const maxSectors = CONFIG.sectorsX * CONFIG.sectorsY;
+    if (usedSectors.length >= maxSectors) usedSectors.length = 0;
+
+    for (let tries = 0; tries < 20; tries++) {
+      const sx = Math.floor(Math.random() * CONFIG.sectorsX);
+      const sy = Math.floor(Math.random() * CONFIG.sectorsY);
+      const key = sx + '-' + sy;
+      if (!usedSectors.includes(key)) {
+        usedSectors.push(key);
+        return { sx, sy };
+      }
+    }
+    return {
+      sx: Math.floor(Math.random() * CONFIG.sectorsX),
+      sy: Math.floor(Math.random() * CONFIG.sectorsY)
+    };
+  }
+
+  // ====== ПРОГРЕССИВНЫЙ РАЗМЕР ======
+  let phraseIndex = 0;
+
+  // ====== СОЗДАНИЕ НАДПИСИ ======
+  function spawnWord(text) {
+    const el = document.createElement('div');
+    el.className = 'word';
+    el.textContent = text;
+
+    const step = phraseIndex % CONFIG.sizeReset;
+    const scaleMult = 1 + step * CONFIG.sizeStep;
+    phraseIndex++;
+
+    const baseFont = CONFIG.baseFontMin + Math.random() * (CONFIG.baseFontMax - CONFIG.baseFontMin);
+    const fontSize = baseFont * scaleMult;
+
+    el.style.fontSize = fontSize.toFixed(1) + 'px';
+    el.style.color = rand(colors);
+    el.style.fontFamily = rand(fonts);
+
+    const { sx, sy } = pickSector();
+    const sectorW = window.innerWidth / CONFIG.sectorsX;
+    const sectorH = window.innerHeight / CONFIG.sectorsY;
+
+    const left = sx * sectorW + Math.random() * sectorW;
+    const top = sy * sectorH + Math.random() * sectorH;
+
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+
+    const rot = (Math.random() * 20 - 10).toFixed(1) + 'deg';
+    el.style.setProperty('--rot', rot);
+
+    scene.appendChild(el);
+
+    requestAnimationFrame(() => {
+      el.classList.add('show');
+    });
+
+    return el;
+  }
+
+  // ====== ГЛАВНЫЙ СЦЕНАРИЙ ======
+  function startShow() {
+    if (started) return;
+    started = true;
+
+    startScreen.classList.add('hidden');
+
+    // Собираем пул
+    const pool = [];
+    for (let i = 0; i < CONFIG.repeats; i++) {
+      birthdayPhrases.forEach((p) => pool.push(p));
+    }
+    const shuffled = pool.sort(() => Math.random() - 0.5);
+
+    const totalPhrases = shuffled.length;
+
+    // Запускаем надписи
+    shuffled.forEach((phrase, i) => {
+      setTimeout(() => spawnWord(phrase), i * CONFIG.spawnDelay);
+    });
+
+    // Финальное сердце
+    const finalDelay = totalPhrases * CONFIG.spawnDelay + 500;
+
+    setTimeout(() => {
+      // Приглушаем фразы
+      document.querySelectorAll('.word').forEach((el) => {
+        el.style.transition = 'opacity 0.5s ease, filter 0.5s ease';
+        el.style.opacity = '0.25';
+      });
+
+      // Удаляем те, что в центре
+      document.querySelectorAll('.word').forEach((el) => {
+        const r = el.getBoundingClientRect();
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        if (
+          r.left < cx + 250 && r.right > cx - 250 &&
+          r.top < cy + 150 && r.bottom > cy - 150
+        ) {
+          el.style.opacity = '0';
+          setTimeout(() => el.remove(), 500);
+        }
+      });
+
+      finalScene.classList.add('show');
+
+      // Послание
+      setTimeout(() => {
+        scrollText.textContent = messageText;
+
+        // Считаем расстояние, которое нужно проехать
+        const distance = scrollText.scrollHeight + window.innerHeight;
+
+        // Динамически создаём keyframes с точным расстоянием
+        const styleId = 'dynamic-scroll-style';
+        let styleEl = document.getElementById(styleId);
+        if (styleEl) styleEl.remove();
+
+        styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        styleEl.textContent = `
+          @keyframes scrollUp {
+            0%   { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-${distance}px); }
+          }
+        `;
+        document.head.appendChild(styleEl);
+
+        scrollText.style.animation = `scrollUp ${scrollDuration}s linear forwards`;
+
+        messageScene.classList.add('show');
+      }, messageDelay);
+
+    }, finalDelay);
+  }
+
+  heartBtn.addEventListener('click', startShow);
+  heartBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    startShow();
+  }, { passive: false });
+</script>
+</body>
+</html>
