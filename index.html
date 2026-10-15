@@ -187,7 +187,7 @@
     will-change: transform;
   }
 
-  /* Фото + подпись — едут следом за текстом */
+  /* Фото с подписью — едет следом за текстом */
   .scroll-photo {
     position: absolute;
     top: 100vh;
@@ -197,7 +197,7 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    padding-bottom: 40px;
+    padding-bottom: 60px;
     will-change: transform;
   }
 
@@ -293,17 +293,19 @@
   // ============================================================
   const messageText = "Анют, с днём рождения тебя!\n\nЯ долго думал, что тебе написать,\nно понял — слов не хватит,\nчтобы описать, как ты мне дорога.\n\nЯ желаю тебе крепкого здоровья,\nсчастья, тепла и радости.\nПусть каждый день приносит что-то хорошее.\n\nЯ верю, что все твои желания и мечты сбудутся,\nну а куда им деться то, хех.\n\nВ независимости от всех трудностей,\nя обещаю, что буду рядом\nи помогу насколько это возможно.\n\nСпасибо, что ты появилась в моей жизни.\nСпасибо за каждый день, за твою улыбку,\nза твоё тепло и за то, что ты просто есть.\n\nЕщё раз: с днём рождения, Анют!\n\n❤️";
 
-  // Подпись под фото — можешь поменять
+  // Подпись под фото
   const photoCaption = "Самая любимая 💖";
 
-  // Имя файла фото (если переименуешь — поменяй здесь)
+  // Имя файла фото
   const photoFile = "photo1.jpg";
 
   // ============================================================
-  //  ⚙️ НАСТРОЙКИ
+  //  ⚙️ НАСТРОЙКИ ТАЙМИНГА
   // ============================================================
-  const scrollDuration = 60;    // сколько секунд едет послание
-  const messageDelay = 2500;    // через сколько мс после сердца показать
+  const messageDelay    = 2500;  // мс после сердца до старта послания
+  const scrollUpDuration = 20;   // секунд — текст и фото едут вверх
+  const holdCenter       = 3;    // секунд — стоят в центре
+  const fadeOutDuration  = 2;    // секунд — затемнение
 
   // ====== АВТООПРЕДЕЛЕНИЕ УСТРОЙСТВА ======
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 600;
@@ -399,15 +401,15 @@
     : ["'Segoe UI'", "Georgia", "Impact", "'Courier New'",
        "Verdana", "'Comic Sans MS'", "'Trebuchet MS'", "'Arial Black'"];
 
-  const startScreen = document.getElementById('startScreen');
-  const heartBtn = document.getElementById('heartBtn');
-  const scene = document.getElementById('scene');
-  const finalScene = document.getElementById('finalScene');
+  const startScreen  = document.getElementById('startScreen');
+  const heartBtn     = document.getElementById('heartBtn');
+  const scene        = document.getElementById('scene');
+  const finalScene   = document.getElementById('finalScene');
   const messageScene = document.getElementById('messageScene');
-  const scrollText = document.getElementById('scrollText');
-  const scrollPhoto = document.getElementById('scrollPhoto');
+  const scrollText   = document.getElementById('scrollText');
+  const scrollPhoto  = document.getElementById('scrollPhoto');
 
-  // Применяем подпись и фото из настроек
+  // Применяем фото и подпись из настроек
   scrollPhoto.querySelector('img').src = photoFile;
   scrollPhoto.querySelector('.caption').textContent = photoCaption;
 
@@ -485,11 +487,13 @@
     const finalDelay = totalPhrases * CONFIG.spawnDelay + 500;
 
     setTimeout(() => {
+      // Приглушаем надписи
       document.querySelectorAll('.word').forEach((el) => {
-        el.style.transition = 'opacity 0.5s ease, filter 0.5s ease';
+        el.style.transition = 'opacity 0.5s ease';
         el.style.opacity = '0.25';
       });
 
+      // Удаляем те, что в центре
       document.querySelectorAll('.word').forEach((el) => {
         const r = el.getBoundingClientRect();
         const cx = window.innerWidth / 2;
@@ -505,14 +509,14 @@
 
       finalScene.classList.add('show');
 
+      // Послание
       setTimeout(() => {
         scrollText.textContent = messageText;
 
-        // Расстояние для текста
+        // Считаем расстояние
         const textDistance = scrollText.scrollHeight + window.innerHeight;
-        // Расстояние для фото
-        const photoDistance = scrollPhoto.scrollHeight + window.innerHeight;
 
+        // Создаём keyframes с точным расстоянием
         const styleId = 'dynamic-scroll-style';
         let styleEl = document.getElementById(styleId);
         if (styleEl) styleEl.remove();
@@ -526,21 +530,42 @@
           }
           @keyframes scrollUpPhoto {
             0%   { transform: translateX(-50%) translateY(0); }
-            100% { transform: translateX(-50%) translateY(-${photoDistance}px); }
+            100% { transform: translateX(-50%) translateY(-${textDistance}px); }
           }
         `;
         document.head.appendChild(styleEl);
 
-        // Текст стартует первым
-        scrollText.style.animation = `scrollUpText ${scrollDuration}s linear forwards`;
-
-        // Фото стартует следом (через 2 секунды после начала текста),
-        // чтобы текст был впереди, а фото — следом
-        setTimeout(() => {
-          scrollPhoto.style.animation = `scrollUpPhoto ${scrollDuration}s linear forwards`;
-        }, 2000);
-
+        // Показываем сцену
         messageScene.classList.add('show');
+
+        // Текст и фото стартуют ОДНОВРЕМЕННО
+        // Фото ниже текста в DOM → едет прямо за ним
+        scrollText.style.animation  = `scrollUpText ${scrollUpDuration}s linear forwards`;
+        scrollPhoto.style.animation = `scrollUpPhoto ${scrollUpDuration}s linear forwards`;
+
+        // Через scrollUpDuration секунд — стоп в центре
+        setTimeout(() => {
+          scrollText.style.animationPlayState = 'paused';
+          scrollPhoto.style.animationPlayState = 'paused';
+
+          // Через holdCenter секунд — плавное затемнение
+          setTimeout(() => {
+            const blackout = document.createElement('div');
+            blackout.style.cssText = `
+              position: fixed;
+              inset: 0;
+              background: #000;
+              z-index: 9999;
+              opacity: 0;
+              transition: opacity ${fadeOutDuration}s ease;
+              pointer-events: none;
+            `;
+            document.body.appendChild(blackout);
+            void blackout.offsetWidth;
+            blackout.style.opacity = '1';
+          }, holdCenter * 1000);
+        }, scrollUpDuration * 1000);
+
       }, messageDelay);
 
     }, finalDelay);
