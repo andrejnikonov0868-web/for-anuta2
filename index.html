@@ -187,6 +187,40 @@
     will-change: transform;
   }
 
+  /* Фото + подпись — едут следом за текстом */
+  .scroll-photo {
+    position: absolute;
+    top: 100vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 40px;
+    will-change: transform;
+  }
+
+  .scroll-photo img {
+    width: min(75vw, 400px);
+    height: auto;
+    border-radius: 18px;
+    box-shadow: 0 0 30px rgba(255,43,109,0.6),
+                0 0 60px rgba(213,0,249,0.3);
+    border: 3px solid rgba(255,107,157,0.5);
+    display: block;
+  }
+
+  .scroll-photo .caption {
+    color: #ffb3d1;
+    font-size: clamp(16px, 4vw, 24px);
+    text-align: center;
+    text-shadow: 0 0 12px rgba(255,107,157,0.7);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 10px;
+  }
+
   .message-scene .top-heart {
     position: absolute;
     top: 18px;
@@ -196,6 +230,7 @@
     opacity: 0.85;
     animation: smallBeat 1.6s ease-in-out infinite;
     filter: drop-shadow(0 0 10px #ff2b6d);
+    z-index: 5;
   }
 
   @keyframes smallBeat {
@@ -245,51 +280,48 @@
     <div class="top-heart">❤️</div>
     <div class="scroll-container">
       <div class="scroll-text" id="scrollText"></div>
+      <div class="scroll-photo" id="scrollPhoto">
+        <img src="photo1.jpg" alt="">
+        <div class="caption">Самая любимая 💖</div>
+      </div>
     </div>
   </div>
 
 <script>
   // ============================================================
-  //  ✍️ ТЕКСТ ПОСЛАНИЯ — ПИШИ СВОЙ ЗДЕСЬ
+  //  ✍️ ТЕКСТ ПОСЛАНИЯ
   // ============================================================
-  const messageText = "Анют, с днём рождения тебя!\nЯ желаю тебе всего самого наилучшего,\nкрепкого здоровья и терпения.\n\nЯ верю, что все твои желания и мечты сбудутся,\nну а куда им деться то, хех.\n\nВ независимости от всех трудностей,\nя обещаю, что буду рядом\nи помогу насколько это возможно.\n\nСпасибо, что ты появилась в моей жизни.\nЕщё раз: с днём рождения!\n\n❤️";
+  const messageText = "Анют, с днём рождения тебя!\n\nЯ долго думал, что тебе написать,\nно понял — слов не хватит,\nчтобы описать, как ты мне дорога.\n\nЯ желаю тебе крепкого здоровья,\nсчастья, тепла и радости.\nПусть каждый день приносит что-то хорошее.\n\nЯ верю, что все твои желания и мечты сбудутся,\nну а куда им деться то, хех.\n\nВ независимости от всех трудностей,\nя обещаю, что буду рядом\nи помогу насколько это возможно.\n\nСпасибо, что ты появилась в моей жизни.\nСпасибо за каждый день, за твою улыбку,\nза твоё тепло и за то, что ты просто есть.\n\nЕщё раз: с днём рождения, Анют!\n\n❤️";
+
+  // Подпись под фото — можешь поменять
+  const photoCaption = "Самая любимая 💖";
+
+  // Имя файла фото (если переименуешь — поменяй здесь)
+  const photoFile = "photo1.jpg";
 
   // ============================================================
   //  ⚙️ НАСТРОЙКИ
   // ============================================================
-  const scrollDuration = 45;    // сколько секунд едет послание
-  const messageDelay = 2500;    // через сколько мс после сердца показать послание
+  const scrollDuration = 60;    // сколько секунд едет послание
+  const messageDelay = 2500;    // через сколько мс после сердца показать
 
   // ====== АВТООПРЕДЕЛЕНИЕ УСТРОЙСТВА ======
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 600;
   const isWeak = isMobile || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
 
-  // ====== НАСТРОЙКИ ПОД УСТРОЙСТВО ======
   const CONFIG = isWeak ? {
-    repeats: 2,
-    spawnDelay: 110,
-    sectorsX: 4,
-    sectorsY: 4,
-    sizeStep: 0.15,
-    sizeReset: 10,
-    baseFontMin: 15,
-    baseFontMax: 26
+    repeats: 2, spawnDelay: 110,
+    sectorsX: 4, sectorsY: 4,
+    sizeStep: 0.15, sizeReset: 10,
+    baseFontMin: 15, baseFontMax: 26
   } : {
-    repeats: 4,
-    spawnDelay: 70,
-    sectorsX: 6,
-    sectorsY: 5,
-    sizeStep: 0.12,
-    sizeReset: 14,
-    baseFontMin: 16,
-    baseFontMax: 34
+    repeats: 4, spawnDelay: 70,
+    sectorsX: 6, sectorsY: 5,
+    sizeStep: 0.12, sizeReset: 14,
+    baseFontMin: 16, baseFontMax: 34
   };
 
-  console.log('Режим:', isWeak ? 'телефон/слабое' : 'десктоп', CONFIG);
-
-  // ============================================================
-  //  ФРАЗЫ
-  // ============================================================
+  // ====== ФРАЗЫ ======
   const birthdayPhrases = [
     "С днём рождения, Анюта!",
     "С днём рождения, котик!",
@@ -302,69 +334,53 @@
     "С днём рождения, моя вселенная!",
     "С днём рождения, моя звёздочка!",
     "С днём рождения, моё солнце!",
-
     "Happy Birthday, Anyuta!",
     "Happy Birthday, my love!",
     "Happy Birthday, sunshine!",
     "Happy Birthday, kitten!",
     "Happy Birthday, sweetheart!",
     "Happy Birthday, my dear!",
-
     "Joyeux anniversaire, Anyuta!",
     "Joyeux anniversaire, mon cœur!",
     "Joyeux anniversaire, mon amour!",
     "Joyeux anniversaire, ma chérie!",
     "Joyeux anniversaire, mon trésor!",
-
     "Feliz cumpleaños, Anyuta!",
     "Feliz cumpleaños, mi amor!",
     "Feliz cumpleaños, mi vida!",
     "Feliz cumpleaños, mi cielo!",
     "Feliz cumpleaños, mi tesoro!",
-
     "Buon compleanno, Anyuta!",
     "Buon compleanno, amore mio!",
     "Buon compleanno, tesoro mio!",
     "Buon compleanno, mia cara!",
-
     "Alles Gute zum Geburtstag, Anyuta!",
     "Alles Gute zum Geburtstag, mein Schatz!",
     "Alles Gute zum Geburtstag, mein Liebling!",
     "Alles Gute zum Geburtstag, meine Süße!",
-
     "Gelukkige verjaardag, Anyuta!",
     "Gelukkige verjaardag, mijn schat!",
-
     "Grattis på födelsedagen, Anyuta!",
     "Grattis på födelsedagen, älskling!",
-
     "Wszystkiego najlepszego, Anyuta!",
     "Sto lat, Anyuta!",
     "Wszystkiego najlepszego, kochanie!",
-
     "Χρόνια πολλά, Anyuta!",
     "Χρόνια πολλά, αγάπη μου!",
-
     "Doğum günün kutlu olsun, Anyuta!",
     "Doğum günün kutlu olsun, aşkım!",
-
     "Feliz aniversário, Anyuta!",
     "Feliz aniversário, meu amor!",
-
     "La multi ani, Anyuta!",
     "La multi ani, iubirea mea!",
-
     "Všechno nejlepší, Anyuta!",
     "Všechno nejlepší, moje lásko!",
-
     "お誕生日おめでとう、アニュタ！",
     "お誕生日おめでとう、愛しい人！",
     "お誕生日おめでとう、ダーリン！",
-
     "生日快乐，安纽塔！",
     "生日快乐，我的爱！",
     "生日快乐，亲爱的！",
-
     "생일 축하해, 아뉴타!",
     "생일 축하해, 사랑해!",
     "생일 축하해, 자기야!"
@@ -389,16 +405,19 @@
   const finalScene = document.getElementById('finalScene');
   const messageScene = document.getElementById('messageScene');
   const scrollText = document.getElementById('scrollText');
+  const scrollPhoto = document.getElementById('scrollPhoto');
+
+  // Применяем подпись и фото из настроек
+  scrollPhoto.querySelector('img').src = photoFile;
+  scrollPhoto.querySelector('.caption').textContent = photoCaption;
 
   let started = false;
   function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  // ====== СЕКТОРА ======
   const usedSectors = [];
   function pickSector() {
     const maxSectors = CONFIG.sectorsX * CONFIG.sectorsY;
     if (usedSectors.length >= maxSectors) usedSectors.length = 0;
-
     for (let tries = 0; tries < 20; tries++) {
       const sx = Math.floor(Math.random() * CONFIG.sectorsX);
       const sy = Math.floor(Math.random() * CONFIG.sectorsY);
@@ -414,10 +433,8 @@
     };
   }
 
-  // ====== ПРОГРЕССИВНЫЙ РАЗМЕР ======
   let phraseIndex = 0;
 
-  // ====== СОЗДАНИЕ НАДПИСИ ======
   function spawnWord(text) {
     const el = document.createElement('div');
     el.className = 'word';
@@ -438,56 +455,41 @@
     const sectorW = window.innerWidth / CONFIG.sectorsX;
     const sectorH = window.innerHeight / CONFIG.sectorsY;
 
-    const left = sx * sectorW + Math.random() * sectorW;
-    const top = sy * sectorH + Math.random() * sectorH;
-
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
+    el.style.left = (sx * sectorW + Math.random() * sectorW) + 'px';
+    el.style.top  = (sy * sectorH + Math.random() * sectorH) + 'px';
 
     const rot = (Math.random() * 20 - 10).toFixed(1) + 'deg';
     el.style.setProperty('--rot', rot);
 
     scene.appendChild(el);
-
-    requestAnimationFrame(() => {
-      el.classList.add('show');
-    });
-
+    requestAnimationFrame(() => el.classList.add('show'));
     return el;
   }
 
-  // ====== ГЛАВНЫЙ СЦЕНАРИЙ ======
   function startShow() {
     if (started) return;
     started = true;
-
     startScreen.classList.add('hidden');
 
-    // Собираем пул
     const pool = [];
     for (let i = 0; i < CONFIG.repeats; i++) {
       birthdayPhrases.forEach((p) => pool.push(p));
     }
     const shuffled = pool.sort(() => Math.random() - 0.5);
-
     const totalPhrases = shuffled.length;
 
-    // Запускаем надписи
     shuffled.forEach((phrase, i) => {
       setTimeout(() => spawnWord(phrase), i * CONFIG.spawnDelay);
     });
 
-    // Финальное сердце
     const finalDelay = totalPhrases * CONFIG.spawnDelay + 500;
 
     setTimeout(() => {
-      // Приглушаем фразы
       document.querySelectorAll('.word').forEach((el) => {
         el.style.transition = 'opacity 0.5s ease, filter 0.5s ease';
         el.style.opacity = '0.25';
       });
 
-      // Удаляем те, что в центре
       document.querySelectorAll('.word').forEach((el) => {
         const r = el.getBoundingClientRect();
         const cx = window.innerWidth / 2;
@@ -503,14 +505,14 @@
 
       finalScene.classList.add('show');
 
-      // Послание
       setTimeout(() => {
         scrollText.textContent = messageText;
 
-        // Считаем расстояние, которое нужно проехать
-        const distance = scrollText.scrollHeight + window.innerHeight;
+        // Расстояние для текста
+        const textDistance = scrollText.scrollHeight + window.innerHeight;
+        // Расстояние для фото
+        const photoDistance = scrollPhoto.scrollHeight + window.innerHeight;
 
-        // Динамически создаём keyframes с точным расстоянием
         const styleId = 'dynamic-scroll-style';
         let styleEl = document.getElementById(styleId);
         if (styleEl) styleEl.remove();
@@ -518,14 +520,25 @@
         styleEl = document.createElement('style');
         styleEl.id = styleId;
         styleEl.textContent = `
-          @keyframes scrollUp {
+          @keyframes scrollUpText {
             0%   { transform: translateX(-50%) translateY(0); }
-            100% { transform: translateX(-50%) translateY(-${distance}px); }
+            100% { transform: translateX(-50%) translateY(-${textDistance}px); }
+          }
+          @keyframes scrollUpPhoto {
+            0%   { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-${photoDistance}px); }
           }
         `;
         document.head.appendChild(styleEl);
 
-        scrollText.style.animation = `scrollUp ${scrollDuration}s linear forwards`;
+        // Текст стартует первым
+        scrollText.style.animation = `scrollUpText ${scrollDuration}s linear forwards`;
+
+        // Фото стартует следом (через 2 секунды после начала текста),
+        // чтобы текст был впереди, а фото — следом
+        setTimeout(() => {
+          scrollPhoto.style.animation = `scrollUpPhoto ${scrollDuration}s linear forwards`;
+        }, 2000);
 
         messageScene.classList.add('show');
       }, messageDelay);
